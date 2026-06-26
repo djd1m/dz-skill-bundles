@@ -36,7 +36,7 @@ Each bundle directory is independent and self-contained: point your loader at
 | [`analyst-manual-full`](./analyst-manual-full) | 4 | 11 | ✅ | composite + 3 sub-skills |
 | [`news-digest`](./news-digest) | 2 | 12 | ✅ | digest + mandatory goap backend |
 | [`news-monitor`](./news-monitor) | 2 | 9 | ✅ | monitor + mandatory goap backend |
-| [`keysarium`](./keysarium) | 7 | 60 | ⚠️ | 7/9 of preset; 2 skills excluded (see note) |
+| [`keysarium`](./keysarium) | 9 | 86 | ✅ | full preset; one advisory (see note) |
 
 ### `analyst-manual-full`
 A 3-phase composite analyst skill. It loads three sibling sub-skills by path, so the bundle
@@ -56,15 +56,14 @@ The news-monitor skill with the same mandatory `goap-research-ed25519` backend f
 delta verification.
 
 ### `keysarium`
-The `keysarium` research preset (9 skills). **7 are bundled**; two are intentionally excluded:
+The full `keysarium` research preset — **all 9 skills** bundled: `explore`, `feature-adr`,
+`knowledge-extractor`, `problem-solver-enhanced`, `analyst-manual-full`,
+`goap-research-ed25519`, `presentation-storyteller`, `edu-site-generator`,
+`transcript-site-generator`.
 
-| Excluded skill | Reason |
-|----------------|--------|
-| `edu-site-generator` | legacy `SKILL.md` has **no YAML frontmatter** — fails the agentskills.io loader |
-| `transcript-site-generator` | same — legacy Markdown-header format, predates the schema |
-
-These two need a frontmatter migration before they can be bundled. The 7 valid skills are
-fully self-contained.
+> Note: `edu-site-generator` and `transcript-site-generator` originally had no YAML
+> frontmatter (legacy Markdown-header format) and were migrated to the agentskills.io schema
+> so they load and bundle cleanly.
 
 One advisory warning is expected for keysarium:
 - `presentation-storyteller` references absolute `/mnt/skills/...` paths — rewrite these to
