@@ -9,10 +9,11 @@ Each bundle is a minimal [agentskills.io](https://agentskills.io) skill tree —
 (`schemas/`, `evals/`, `sources.json`) are stripped, and **no `manifest.json` is written** —
 the consuming app builds its own file-manifest on load.
 
-These bundles are meant to be loaded by a generic runtime (e.g. a **LangGraph** app) that
-points its `load_skill` at a skill directory. A skill provides *instructions + resources* that
-an agent pulls into its prompt; it does **not** describe graph nodes, and ships no Python graph
-scaffold.
+These bundles are meant to be loaded by a generic runtime — e.g. a
+[**LangGraph**](https://github.com/langchain-ai/langgraph)
+([docs](https://langchain-ai.github.io/langgraph/)) app — that points its own `load_skill` at a
+skill directory. A skill provides *instructions + resources* that an agent pulls into its
+prompt; it does **not** describe graph nodes, and ships no Python graph scaffold.
 
 > Generated: 2026-06-26 · `dz bundle` from `@dzhechkov/harness-cli`
 
@@ -86,6 +87,48 @@ orchestrators:
   not in this package (`brutal-honesty-review`, `idea2prd-manual`, `md2pptx`, plain
   `goap-research`). They're mentioned by name only (no hard path coupling) and the skill works
   without them.
+
+## Use with LangGraph
+
+A skill is *instructions + resources*, not a graph. Your [LangGraph](https://langchain-ai.github.io/langgraph/)
+app reads a bundle's `SKILL.md` and injects it into the model's prompt; the graph wiring stays
+yours. Minimal `load_skill` + node:
+
+```python
+from pathlib import Path
+from langgraph.graph import StateGraph, MessagesState
+from langchain_anthropic import ChatAnthropic
+
+BUNDLES = Path("bundles")  # this repo, checked out locally
+
+def load_skill(skill_id: str, bundle: str) -> str:
+    """Return a bundled skill's SKILL.md (instructions) for prompt injection.
+    references/ and scripts/ sit alongside it and are read on demand when the
+    instructions say to (expose a file-read tool for that)."""
+    return (BUNDLES / bundle / "skills" / skill_id / "SKILL.md").read_text("utf-8")
+
+llm = ChatAnthropic(model="claude-opus-4-8")
+
+def analyst_node(state: MessagesState):
+    system = {"role": "system", "content": load_skill("analyst-manual-full",
+                                                       bundle="analyst-manual-full")}
+    return {"messages": [llm.invoke([system, *state["messages"]])]}
+
+graph = StateGraph(MessagesState)
+graph.add_node("analyst", analyst_node)
+graph.set_entry_point("analyst")
+app = graph.compile()
+```
+
+Notes for a faithful loader:
+- **Resolve `view(".claude/skills/<id>/…")` against the bundle root**, not a host path — those
+  refs point to sibling skills inside `<bundle>/skills/`. Expose a file-read tool so the model
+  can pull a `references/*.md` or sibling `SKILL.md` when the instructions ask.
+- **Build your own file-manifest on load** (list `<bundle>/skills/`); the bundles ship no
+  `manifest.json` on purpose.
+- **A few skills name external/host capabilities** (e.g. `keysarium`'s `ai-factory-mapper`
+  wants the Anthropic public `docx` skill for its optional DOCX export). Provide your own, or
+  skip that step — see the keysarium notes above.
 
 ## How these were generated
 
