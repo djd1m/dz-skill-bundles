@@ -36,8 +36,8 @@ presentation/
 
 | Phase | Skill | Path | Purpose |
 |-------|-------|------|---------|
-| 1. Explore | `explore` | `/mnt/skills/user/explore/SKILL.md` | Уточнение задачи |
-| 2. Research | `goap-research-ed25519` | `/mnt/skills/user/goap-research-ed25519/SKILL.md` | Верифицированные источники |
+| 1. Explore | `explore` | `.claude/skills/explore/SKILL.md` | Уточнение задачи |
+| 2. Research | `goap-research-ed25519` | `.claude/skills/goap-research-ed25519/SKILL.md` | Верифицированные источники |
 
 ## Workflow Overview
 
@@ -72,7 +72,7 @@ presentation/
 
 ## Phase 1: Explore (Presentation Brief)
 
-**Load:** `view("/mnt/skills/user/explore/SKILL.md")`
+**Load:** `view(".claude/skills/explore/SKILL.md")`
 
 **Key Questions for Presentations:**
 
@@ -104,7 +104,7 @@ presentation/
 
 ## Phase 2: Research (Verified Sources)
 
-**Load:** `view("/mnt/skills/user/goap-research-ed25519/SKILL.md")`
+**Load:** `view(".claude/skills/goap-research-ed25519/SKILL.md")`
 
 **Research Actions for Presentations:**
 

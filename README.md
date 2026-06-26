@@ -36,7 +36,7 @@ Each bundle directory is independent and self-contained: point your loader at
 | [`analyst-manual-full`](./analyst-manual-full) | 4 | 11 | ✅ | composite + 3 sub-skills |
 | [`news-digest`](./news-digest) | 2 | 12 | ✅ | digest + mandatory goap backend |
 | [`news-monitor`](./news-monitor) | 2 | 9 | ✅ | monitor + mandatory goap backend |
-| [`keysarium`](./keysarium) | 9 | 86 | ✅ | full preset; one advisory (see note) |
+| [`keysarium`](./keysarium) | 9 | 86 | ✅ | full preset; zero warnings |
 
 ### `analyst-manual-full`
 A 3-phase composite analyst skill. It loads three sibling sub-skills by path, so the bundle
@@ -63,11 +63,9 @@ The full `keysarium` research preset — **all 9 skills** bundled: `explore`, `f
 
 > Note: `edu-site-generator` and `transcript-site-generator` originally had no YAML
 > frontmatter (legacy Markdown-header format) and were migrated to the agentskills.io schema
-> so they load and bundle cleanly.
-
-One advisory warning is expected for keysarium:
-- `presentation-storyteller` references absolute `/mnt/skills/...` paths — rewrite these to
-  bundle-relative ids for your runtime.
+> so they load and bundle cleanly. `presentation-storyteller`'s cross-skill references were
+> rewritten from absolute `/mnt/skills/...` paths to bundle-relative `.claude/skills/<id>`
+> paths. The bundle now emits with **zero warnings**.
 
 ## How these were generated
 
