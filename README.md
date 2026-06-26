@@ -36,7 +36,7 @@ Each bundle directory is independent and self-contained: point your loader at
 | [`analyst-manual-full`](./analyst-manual-full) | 4 | 11 | ✅ | composite + 3 sub-skills |
 | [`news-digest`](./news-digest) | 2 | 12 | ✅ | digest + mandatory goap backend |
 | [`news-monitor`](./news-monitor) | 2 | 9 | ✅ | monitor + mandatory goap backend |
-| [`keysarium`](./keysarium) | 9 | 86 | ✅ | full preset; zero warnings |
+| [`keysarium`](./keysarium) | 12 | 109 | ⚠️ | full package; 1 external host skill (`docx`, optional) |
 
 ### `analyst-manual-full`
 A 3-phase composite analyst skill. It loads three sibling sub-skills by path, so the bundle
@@ -56,16 +56,36 @@ The news-monitor skill with the same mandatory `goap-research-ed25519` backend f
 delta verification.
 
 ### `keysarium`
-The full `keysarium` research preset — **all 9 skills** bundled: `explore`, `feature-adr`,
-`knowledge-extractor`, `problem-solver-enhanced`, `analyst-manual-full`,
-`goap-research-ed25519`, `presentation-storyteller`, `edu-site-generator`,
-`transcript-site-generator`.
+The **full `keysarium` package** — all **12 skills** it ships, including the pipeline
+orchestrators:
+- `reverse-engineering-unicorn` (the master orchestrator — company → launch playbook + CJM)
+- `feature-adr` (11-step feature pipeline) · `ai-factory-mapper` (Cloud.ru AI Factory mapping)
+- `explore` · `goap-research-ed25519` · `problem-solver-enhanced` · `frontend-design`
+- `analyst-manual-full` · `knowledge-extractor` · `presentation-storyteller`
+- `edu-site-generator` · `transcript-site-generator`
 
-> Note: `edu-site-generator` and `transcript-site-generator` originally had no YAML
-> frontmatter (legacy Markdown-header format) and were migrated to the agentskills.io schema
-> so they load and bundle cleanly. `presentation-storyteller`'s cross-skill references were
-> rewritten from absolute `/mnt/skills/...` paths to bundle-relative `.claude/skills/<id>`
-> paths. The bundle now emits with **zero warnings**.
+> This is the full package set, **not** the `keysarium` CLI preset (which curates only 9 and
+> omits `reverse-engineering-unicorn`, `frontend-design`, `ai-factory-mapper`). For a portable
+> repo we bundle everything the package ships.
+
+**Source migrations applied** so the package bundles cleanly:
+- `edu-site-generator` + `transcript-site-generator` — added YAML frontmatter (legacy
+  Markdown-header format the agentskills.io loader rejected).
+- `presentation-storyteller` + `ai-factory-mapper` — rewrote in-bundle cross-skill references
+  from absolute `/mnt/skills/user/<id>` paths to bundle-relative `.claude/skills/<id>`.
+
+**Expected (honest) warnings** — these are informative, not defects:
+- `ai-factory-mapper` depends on the Anthropic **public `docx` skill** (`/mnt/skills/public/docx`)
+  for its *optional* final DOCX-export step. That's a **host-provided** skill, not part of
+  keysarium — provide your own DOCX generation, or skip that step. Everything else is
+  self-contained.
+- `ai-factory-mapper` and `reverse-engineering-unicorn` use `view()` to load their in-bundle
+  sibling skills — expose a file-read tool in your runtime so `view(".claude/skills/<id>/…")`
+  resolves against the bundle.
+- `reverse-engineering-unicorn` also *names* a few optional DEEP/VERIFIED-mode skills that are
+  not in this package (`brutal-honesty-review`, `idea2prd-manual`, `md2pptx`, plain
+  `goap-research`). They're mentioned by name only (no hard path coupling) and the skill works
+  without them.
 
 ## How these were generated
 
@@ -76,7 +96,10 @@ dz bundle --select analyst-manual-full,explore,goap-research-ed25519,problem-sol
 
 dz bundle --select news-digest,goap-research-ed25519  --skills-dir <skills> --out ./news-digest
 dz bundle --select news-monitor,goap-research-ed25519 --skills-dir <skills> --out ./news-monitor
-dz bundle --preset keysarium                          --skills-dir <skills> --out ./keysarium
+
+# keysarium: the FULL package (all 12 skills), not the 9-skill CLI preset
+dz bundle --select ai-factory-mapper,analyst-manual-full,edu-site-generator,explore,feature-adr,frontend-design,goap-research-ed25519,knowledge-extractor,presentation-storyteller,problem-solver-enhanced,reverse-engineering-unicorn,transcript-site-generator \
+  --skills-dir <skills> --out ./keysarium
 ```
 
 Regenerate / extend with the published CLI:
